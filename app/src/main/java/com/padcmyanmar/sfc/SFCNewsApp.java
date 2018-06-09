@@ -2,7 +2,7 @@ package com.padcmyanmar.sfc;
 
 import android.app.Application;
 
-import com.padcmyanmar.sfc.data.models.NewsModel;
+import com.padcmyanmar.sfc.datas.models.NewsModel;
 
 /**
  * Created by aung on 11/4/17.

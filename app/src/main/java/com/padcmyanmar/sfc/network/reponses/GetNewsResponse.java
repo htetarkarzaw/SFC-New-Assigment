@@ -1,9 +1,7 @@
 package com.padcmyanmar.sfc.network.reponses;
 
 import com.google.gson.annotations.SerializedName;
-import com.padcmyanmar.sfc.data.vo.NewsVO;
-
-import org.greenrobot.eventbus.Subscribe;
+import com.padcmyanmar.sfc.datas.vo.NewsVO;
 
 import java.util.ArrayList;
 import java.util.List;

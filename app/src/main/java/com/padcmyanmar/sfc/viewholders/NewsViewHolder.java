@@ -1,14 +1,12 @@
 package com.padcmyanmar.sfc.viewholders;
 
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.padcmyanmar.sfc.R;
-import com.padcmyanmar.sfc.data.vo.NewsVO;
+import com.padcmyanmar.sfc.datas.vo.NewsVO;
 import com.padcmyanmar.sfc.delegates.NewsItemDelegate;
-import com.padcmyanmar.sfc.events.RestApiEvents;
-
-import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -19,8 +17,25 @@ import butterknife.OnClick;
 
 public class NewsViewHolder extends BaseViewHolder<NewsVO> {
 
+    @BindView(R.id.iv_publication_logo)
+    ImageView ivPublicationLogo;
+
+    @BindView(R.id.tv_publication_name)
+    TextView tvPublicationName;
+
+    @BindView(R.id.tv_published_date)
+    TextView tvPublishedDate;
+
     @BindView(R.id.tv_brief_news)
     TextView tvBriefNews;
+
+    @BindView(R.id.iv_news_hero_image)
+    ImageView ivNewsHeroImage;
+
+    @BindView(R.id.tv_news_statistical_data)
+    TextView tvNewsStatisticalData;
+
+    NewsVO mData;
 
     private NewsItemDelegate mDelegate;
 
@@ -31,12 +46,17 @@ public class NewsViewHolder extends BaseViewHolder<NewsVO> {
 
     @Override
     public void setData(NewsVO data) {
-        tvBriefNews.setText(data.getDetails());
+
+        mData = data;
+
+
+        tvPublishedDate.setText(data.getPostedDate());
+        tvBriefNews.setText(data.getBrief());
     }
 
     @Override
     public void onClick(View v) {
-        mDelegate.onTapNews();
+        mDelegate.onTapNews(mData);
 
         //EventBus.getDefault().post(new TapNewsEvent("news-id"));
         //EventBus.getDefault().post(new RestApiEvents.EmptyResponseEvent());

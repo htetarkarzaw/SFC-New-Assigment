@@ -1,6 +1,6 @@
 package com.padcmyanmar.sfc.events;
 
-import com.padcmyanmar.sfc.data.vo.NewsVO;
+import com.padcmyanmar.sfc.datas.vo.NewsVO;
 
 import java.util.List;
 
