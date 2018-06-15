@@ -1,10 +1,7 @@
 package com.padcmyanmar.sfc.activities;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
@@ -26,16 +23,19 @@ import com.padcmyanmar.sfc.datas.vo.NewsVO;
 import com.padcmyanmar.sfc.delegates.NewsItemDelegate;
 import com.padcmyanmar.sfc.events.RestApiEvents;
 import com.padcmyanmar.sfc.events.TapNewsEvent;
+import com.padcmyanmar.sfc.network.reponses.GetNewsResponse;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Date;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
 
 public class NewsListActivity extends BaseActivity
         implements NewsItemDelegate {
@@ -52,7 +52,10 @@ public class NewsListActivity extends BaseActivity
     private SmartScrollListener mSmartScrollListener;
 
     private NewsAdapter mNewsAdapter;
-    private NewsModel newsModel;
+
+    //RxJava
+    NewsModel newsModel;
+    private PublishSubject<GetNewsResponse> newsPSubject;
 
 
     @Override
@@ -68,6 +71,8 @@ public class NewsListActivity extends BaseActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(),PrimeCalculator.class);
+                startActivity(i);
                 /*
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -90,14 +95,41 @@ public class NewsListActivity extends BaseActivity
         mNewsAdapter = new NewsAdapter(getApplicationContext(), this);
         rvNews.setAdapter(mNewsAdapter);
 
-        newsModel  = ViewModelProviders.of(this).get(NewsModel.class);
-        newsModel.initDatabase(this);
-        newsModel.getNews().observe(this, new Observer<List<NewsVO>>() {
+        newsPSubject = PublishSubject.create();
+        newsModel.getInstance().loadNewsSubject(newsPSubject);
+//        newsModel.loadNewsSubject(newsPSubject);
+
+        newsPSubject.subscribe(new Observer<GetNewsResponse>() {
             @Override
-            public void onChanged(@Nullable List<NewsVO> newsVOS) {
-                mNewsAdapter.appendNewData(newsVOS);
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(GetNewsResponse getNewsResponse) {
+                for(NewsVO newsVO:getNewsResponse.getNewsList()){
+                    mNewsAdapter.addNewData(newsVO);
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
             }
         });
+
+
+//        NewsModel.getInstance().getNews().observe(this, new Observer<List<NewsVO>>() {
+//            @Override
+//            public void onChanged(@Nullable List<NewsVO> newsVOS) {
+//                mNewsAdapter.appendNewData(newsVOS);
+//            }
+//        });
 
         mSmartScrollListener = new SmartScrollListener(new SmartScrollListener.OnSmartScrollListener() {
             @Override
@@ -177,10 +209,10 @@ public class NewsListActivity extends BaseActivity
 //        startActivity(intent);
     }
 
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onNewsDataLoaded(RestApiEvents.NewsDataLoadedEvent event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNewsDataLoaded(RestApiEvents.NewsDataLoadedEvent event) {
 //        mNewsAdapter.appendNewData(event.getLoadNews());
-//    }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onErrorInvokingAPI(RestApiEvents.ErrorInvokingAPIEvent event) {

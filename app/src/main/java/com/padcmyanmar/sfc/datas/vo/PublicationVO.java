@@ -2,6 +2,7 @@ package com.padcmyanmar.sfc.datas.vo;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class PublicationVO {
 
     @PrimaryKey
-    @NotNull
+    @NonNull
     @SerializedName("publication-id")
     private String publicationId;
 
@@ -33,9 +34,12 @@ public class PublicationVO {
     private String logo;
 
 
-    @NotNull
+    @NonNull
     public String getPublicationId() {
-        return publicationId;
+        if(publicationId!=null){
+            return publicationId;
+        }
+        return null;
     }
 
     public void setPublicationId(@NotNull String publicationId) {

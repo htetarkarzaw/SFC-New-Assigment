@@ -19,15 +19,18 @@ import com.padcmyanmar.sfc.datas.vo.SentToVO;
         NewsInImagesVO.class,
         FavoriteActionVO.class,
         PublicationVO.class,
-        SentToVO.class} , version = 1)
+        SentToVO.class} , version = 3,exportSchema = false)
 public abstract class AppDataBase extends RoomDatabase {
-    private static final String DB_NAME = "SFC_News_Db";
+    private static final String DB_NAME = "SFC_News_Db_01";
 
     private static AppDataBase INSTANCE;
+
 
     public abstract NewsDao newsDao();
 
     public abstract NewsInImagesDao newsInImageDao();
+
+//    public abstract PublicationDao publicationDao();
 
     public abstract PublicationDao publicationDao();
 
@@ -42,9 +45,9 @@ public abstract class AppDataBase extends RoomDatabase {
     public static AppDataBase getNewsDatabase(Context context) {
         if (INSTANCE == null) {
             INSTANCE = Room
-                    .databaseBuilder(context.getApplicationContext(), AppDataBase.class, DB_NAME)
+                    .databaseBuilder(context, AppDataBase.class, DB_NAME)
                     .allowMainThreadQueries()   //Remove this after testing. Access to DB should always be from background thread.
-                    .fallbackToDestructiveMigration()
+//                    .fallbackToDestructiveMigration()
                     .build();
         }
         return INSTANCE;

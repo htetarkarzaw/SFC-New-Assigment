@@ -13,12 +13,12 @@ import com.padcmyanmar.sfc.datas.vo.PublicationVO;
 import java.util.List;
 
 @Dao
-public abstract class NewsDao {
+public interface NewsDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract long insertNew(NewsVO newsVO);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract long[] insertNews(NewsVO... newsVOSs);
 
     @Query("SELECT * FROM news")
@@ -30,11 +30,4 @@ public abstract class NewsDao {
     @Query("SELECT * FROM News WHERE newsId = :newsId")
     public abstract NewsVO getNew(String newsId);
 
-    public void insertNewsWithPubId(String publicationId, NewsVO newsVO) {
-        newsVO.setPublicationId(publicationId);
-        insertNews(newsVO);
-    }
-
-    @Query("SELECT * FROM News n JOIN Publication p ON n.publicationId = :publicationId")
-    public abstract PublicationVO getPublication(String publicationId);
 }

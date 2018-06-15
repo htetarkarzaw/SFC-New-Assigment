@@ -59,12 +59,12 @@ public class NewsDetailsActivity extends BaseActivity {
 
         mNewsId = getIntent().getStringExtra(IE_NEWS_ID);
 
-        newsModel  = ViewModelProviders.of(this).get(NewsModel.class);
+//        newsModel  = ViewModelProviders.of(this).get(NewsModel.class);
         newsModel.initDatabase(this);
-        NewsVO mNew = newsModel.getNew(mNewsId);
+//        NewsVO mNew = newsModel.getNew(mNewsId);
 
-        tvNewsDetails.setText(mNew.getDetails());
-        tvPublishedDate.setText(mNew.getPostedDate());
+//        tvNewsDetails.setText(mNew.getDetails());
+//        tvPublishedDate.setText(mNew.getPostedDate());
 
         NewsImagesPagerAdapter newsImagesPagerAdapter = new NewsImagesPagerAdapter(getApplicationContext());
         vpNewsDetailsImages.setAdapter(newsImagesPagerAdapter);

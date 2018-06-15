@@ -12,17 +12,18 @@ import java.util.List;
 
 @Dao
 public interface PublicationDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertPublication(PublicationVO publication);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     long[] insertPublications(PublicationVO... publications);
 
-    @Query("SELECT * FROM publication")
-    LiveData<List<PublicationVO>> getAllPublications();
-
-    @Query("SELECT * FROM publication WHERE publicationId =:id")
-    public abstract PublicationVO getPublicationById(String id);
+//    @Query("SELECT * FROM publication")
+//    LiveData<List<PublicationVO>> getAllPublications();
+//
+//    @Query("SELECT * FROM publication WHERE publicationId =:id")
+//    public abstract PublicationVO getPublicationById(String id);
 
     @Query("DELETE FROM publication")
     void deleteAll();

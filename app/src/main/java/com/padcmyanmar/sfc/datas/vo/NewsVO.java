@@ -24,15 +24,14 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
 @Entity(tableName = "News",
         foreignKeys = @ForeignKey(entity = PublicationVO.class,
                 parentColumns = "publicationId",
-                childColumns = "publicationId",onDelete = CASCADE))
+                childColumns = "publicationId"))
 
-@TypeConverters(AttractionImagesTypeConverter.class)
 public class NewsVO {
 
     @PrimaryKey
     @ColumnInfo(name = "newsId")
     @SerializedName("news-id")
-    @NotNull
+    @NonNull
     private String newsId;
 
     @SerializedName("brief")
@@ -47,7 +46,6 @@ public class NewsVO {
 
     @SerializedName("posted-date")
     private String postedDate;
-
 
     @ColumnInfo(name = "publicationId")
     private String publicationId;

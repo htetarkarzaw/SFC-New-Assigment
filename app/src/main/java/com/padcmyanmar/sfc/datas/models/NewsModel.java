@@ -3,12 +3,17 @@ package com.padcmyanmar.sfc.datas.models;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
+import android.util.Log;
 
+import com.google.gson.Gson;
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.padcmyanmar.sfc.datas.database.AppDataBase;
 import com.padcmyanmar.sfc.datas.vo.NewsVO;
 import com.padcmyanmar.sfc.datas.vo.PublicationVO;
 import com.padcmyanmar.sfc.events.RestApiEvents;
+import com.padcmyanmar.sfc.network.MMNewsAPI;
 import com.padcmyanmar.sfc.network.MMNewsDataAgentImpl;
+import com.padcmyanmar.sfc.network.reponses.GetNewsResponse;
 import com.padcmyanmar.sfc.utils.AppConstants;
 
 import org.greenrobot.eventbus.EventBus;
@@ -17,61 +22,57 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
+import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by aung on 12/3/17.
  */
 
-public class NewsModel extends ViewModel {
+public class NewsModel {
 
     private static NewsModel objInstance;
 
     private List<NewsVO> mNews;
     private int mmNewsPageIndex = 1;
 
-    private AppDataBase mAppDatabase;
+     AppDataBase mAppDatabase;
 
-    public NewsModel() {
+     //RxJava
+    private MMNewsAPI mmNewsAPI;
+
+    private NewsModel(Context context) {
+        mAppDatabase = AppDataBase.getNewsDatabase(context);
+
         EventBus.getDefault().register(this);
         mNews = new ArrayList<>();
-        startLoadingMMNews();
+//        startLoadingMMNews();
+        initMMnewAPI();
     }
 
     public static NewsModel getInstance() {
-        if(objInstance == null) {
-            objInstance = new NewsModel();
+        if(objInstance != null) {
+            return objInstance;
         }
-        return objInstance;
+        throw new RuntimeException("NewsModel shouldn't be null at this point.");
     }
 
-    public void initDatabase(Context context) {
-        mAppDatabase = AppDataBase.getNewsDatabase(context);
+    public static void initDatabase(Context context) {
+        objInstance = new NewsModel(context);
     }
-
-    public LiveData<List<NewsVO>> getNews() {
-        return mAppDatabase.newsDao().getAllNews();
-    }
-
-    public NewsVO getNew(String id){
-        return mAppDatabase.newsDao().getNew(id);
-    }
-
-    public PublicationVO getPublication(String id){
-        return mAppDatabase.newsDao().getPublication(id);
-    }
-
 
     public void startLoadingMMNews() {
         MMNewsDataAgentImpl.getInstance().loadMMNews(AppConstants.ACCESS_TOKEN, mmNewsPageIndex);
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        if (EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().unregister(this);
-        }
-        AppDataBase.destoryInstance();
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
@@ -79,9 +80,61 @@ public class NewsModel extends ViewModel {
         mNews.addAll(event.getLoadNews());
         for (NewsVO newsVO : event.getLoadNews()) {
             NewsVO vo = newsVO;
-            mAppDatabase.newsDao().insertNew(newsVO);
+            PublicationVO pVo = vo.getPublication();
+            vo.setPublicationId(pVo.getPublicationId());
+            long pub = mAppDatabase.publicationDao().insertPublication(pVo);
+            long news = mAppDatabase.newsDao().insertNew(vo);
+            Log.e("Success", news+"onNewsDataLoaded: "+pub );
         }
 
         mmNewsPageIndex = event.getLoadedPageIndex() + 1;
     }
+
+    //Rxjava
+
+    private void initMMnewAPI(){
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://padcmyanmar.com/padc-3/mm-news/apis/")
+                .addConverterFactory(GsonConverterFactory.create(new Gson()))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(okHttpClient)
+                .build();
+
+        mmNewsAPI = retrofit.create(MMNewsAPI.class);
+    }
+
+    public void loadNewsSubject(final PublishSubject<GetNewsResponse> pSubject){
+        Observable<GetNewsResponse> newsObserable = mmNewsAPI.loadMMNewsRx(mmNewsPageIndex,AppConstants.ACCESS_TOKEN);
+        newsObserable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<GetNewsResponse>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(GetNewsResponse getNewsResponse) {
+                        pSubject.onNext(getNewsResponse);
+                        pSubject.publish();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
 }
