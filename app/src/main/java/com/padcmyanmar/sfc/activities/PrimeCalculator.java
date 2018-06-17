@@ -79,9 +79,9 @@ public class PrimeCalculator extends BaseActivity {
 
     @Contract(pure = true)
     private String calculatePrime(int number) {
-        int i =0;
+        int i;
         String answer = "Prime numbers are: ";
-        for( i = 0;i<number+1;i++){
+        for( i=0;i<number+1;i++){
             if(number==2 || isPirme(i)){
                 answer = answer +i+" , ";
             }

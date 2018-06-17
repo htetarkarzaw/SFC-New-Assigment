@@ -29,7 +29,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,7 +56,6 @@ public class NewsListActivity extends BaseActivity
     private NewsAdapter mNewsAdapter;
 
     //RxJava
-    NewsModel newsModel;
     private PublishSubject<GetNewsResponse> newsPSubject;
 
 
@@ -96,7 +97,7 @@ public class NewsListActivity extends BaseActivity
         rvNews.setAdapter(mNewsAdapter);
 
         newsPSubject = PublishSubject.create();
-        newsModel.getInstance().loadNewsSubject(newsPSubject);
+
 //        newsModel.loadNewsSubject(newsPSubject);
 
         newsPSubject.subscribe(new Observer<GetNewsResponse>() {
@@ -107,9 +108,7 @@ public class NewsListActivity extends BaseActivity
 
             @Override
             public void onNext(GetNewsResponse getNewsResponse) {
-                for(NewsVO newsVO:getNewsResponse.getNewsList()){
-                    mNewsAdapter.addNewData(newsVO);
-                }
+                mNewsAdapter.setNewData(getNewsResponse.getNewsList());
             }
 
             @Override
@@ -122,7 +121,7 @@ public class NewsListActivity extends BaseActivity
 
             }
         });
-
+        NewsModel.getInstance().loadNewsSubject(newsPSubject);
 
 //        NewsModel.getInstance().getNews().observe(this, new Observer<List<NewsVO>>() {
 //            @Override

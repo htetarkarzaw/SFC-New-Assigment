@@ -122,7 +122,6 @@ public class NewsModel {
                     @Override
                     public void onNext(GetNewsResponse getNewsResponse) {
                         pSubject.onNext(getNewsResponse);
-                        pSubject.publish();
                     }
 
                     @Override
