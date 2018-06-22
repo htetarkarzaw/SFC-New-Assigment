@@ -101,6 +101,9 @@ public class NewsVO {
     }
 
     public List<String> getImages() {
+        if(images==null){
+            return new ArrayList<>();
+        }
         return images;
     }
 

@@ -14,6 +14,8 @@ import com.padcmyanmar.sfc.R;
 import com.padcmyanmar.sfc.adapters.NewsImagesPagerAdapter;
 import com.padcmyanmar.sfc.datas.models.NewsModel;
 import com.padcmyanmar.sfc.datas.vo.NewsVO;
+import com.padcmyanmar.sfc.mvp.presenters.NewsDetailPresenter;
+import com.padcmyanmar.sfc.mvp.views.NewsDetailView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,7 +24,7 @@ import butterknife.ButterKnife;
  * Created by aung on 11/11/17.
  */
 
-public class NewsDetailsActivity extends BaseActivity {
+public class NewsDetailsActivity extends BaseActivity implements NewsDetailView{
 
     private static final String IE_NEWS_ID = "IE_NEWS_ID";
     private String mNewsId;
@@ -45,6 +47,8 @@ public class NewsDetailsActivity extends BaseActivity {
 
     private NewsModel newsModel;
 
+    NewsDetailPresenter mPresenter;
+
     public static Intent newIntent(Context context, String newsId) {
         Intent intent = new Intent(context, NewsDetailsActivity.class);
         intent.putExtra(IE_NEWS_ID, newsId);
@@ -56,6 +60,8 @@ public class NewsDetailsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_details);
         ButterKnife.bind(this, this);
+        mPresenter = new NewsDetailPresenter(this);
+        mPresenter.onCreate();
 
         mNewsId = getIntent().getStringExtra(IE_NEWS_ID);
 
@@ -68,5 +74,46 @@ public class NewsDetailsActivity extends BaseActivity {
 
         NewsImagesPagerAdapter newsImagesPagerAdapter = new NewsImagesPagerAdapter(getApplicationContext());
         vpNewsDetailsImages.setAdapter(newsImagesPagerAdapter);
+        mPresenter.onFinishUISetup(mNewsId);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mPresenter.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPresenter.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mPresenter.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mPresenter.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mPresenter.onDestory();
+    }
+
+    @Override
+    public void displayNewsDetail(NewsVO newsVO) {
+
+    }
+
+    @Override
+    public void displayErrorMsg(String errMessage) {
+
     }
 }

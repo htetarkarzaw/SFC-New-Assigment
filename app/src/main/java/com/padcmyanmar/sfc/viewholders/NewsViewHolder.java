@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.padcmyanmar.sfc.R;
 import com.padcmyanmar.sfc.datas.vo.NewsVO;
 import com.padcmyanmar.sfc.delegates.NewsItemDelegate;
@@ -46,12 +47,17 @@ public class NewsViewHolder extends BaseViewHolder<NewsVO> {
 
     @Override
     public void setData(NewsVO data) {
-
         mData = data;
-
-
         tvPublishedDate.setText(data.getPostedDate());
         tvBriefNews.setText(data.getBrief());
+        if(!data.getImages().isEmpty()) {
+            Glide.with(ivNewsHeroImage.getContext())
+                    .load(data.getImages().get(0))
+                    .into(ivNewsHeroImage);
+        }
+        Glide.with(ivPublicationLogo.getContext())
+                .load(data.getPublication().getLogo())
+                .into(ivPublicationLogo);
     }
 
     @Override

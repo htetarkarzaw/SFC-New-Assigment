@@ -21,7 +21,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -48,6 +50,9 @@ public class NewsModel {
 
      AppDataBase mAppDatabase;
 
+
+    private Map<String, NewsVO> newsVOMap;
+
      //RxJava
     private MMNewsAPI mmNewsAPI;
 
@@ -56,6 +61,7 @@ public class NewsModel {
 
         EventBus.getDefault().register(this);
         mNews = new ArrayList<>();
+        newsVOMap = new HashMap<>();
 //        startLoadingMMNews();
         initMMnewAPI();
     }
@@ -121,6 +127,9 @@ public class NewsModel {
 
                     @Override
                     public void onNext(GetNewsResponse getNewsResponse) {
+                        for (NewsVO newsVO : getNewsResponse.getNewsList()) {
+                            newsVOMap.put(newsVO.getNewsId(), newsVO);
+                        }
                         pSubject.onNext(getNewsResponse);
                     }
 
@@ -134,6 +143,9 @@ public class NewsModel {
 
                     }
                 });
+    }
+    public NewsVO getNewsById(String newsId) {
+        return newsVOMap.get(newsId);
     }
 
 }
